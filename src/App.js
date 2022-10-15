@@ -108,7 +108,7 @@ function App() {
                 return (
                   <ImageListItem key={i}>
                     <img
-                      src={`${item.urls.full} `} 
+                      src={`${item.urls.small} `} 
                       // srcSet={`${item.urls.full}?w=164&h=164&fit=crop&auto=format&dpr=2 2x`}
                       alt={item.alt_description}
                       loading="lazy"
