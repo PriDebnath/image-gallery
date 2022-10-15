@@ -28,9 +28,6 @@ function App() {
         return response.json();
       })
       .then((data) => {
-        console.log(data);
-        toast.dismiss(toastId);
-        toast.success("succeed");
         if (defaultPage === 1) {
           setImages(data.results);
           setPage(page + 1);
@@ -39,6 +36,8 @@ function App() {
           setPage(page + 1);
         }
         console.log(data)
+          toast.dismiss(toastId);
+        toast.success("succeed");
       })
       .catch((error) => {
         toast.error("Network error");
