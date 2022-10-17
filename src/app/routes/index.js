@@ -5,7 +5,7 @@ import Gallery from '../container/gallery'
 const Router = () => {
   return (
     <Routes>
-        <Route path="/gallery" element={<Gallery/>}/>
+        <Route path="/" element={<Gallery/>}/>
 
     </Routes>
   )

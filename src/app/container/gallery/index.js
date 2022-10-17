@@ -11,6 +11,9 @@ import FullImageDialog from "./component/FullImageDialog";
 import InfiniteScroll from "react-infinite-scroll-component";
 
 function Gallery() {
+    useEffect(() => {
+    getImages();
+  }, []);
   const [searchValue, setSearchValue] = useState("office");
   const [images, setImages] = useState([]);
   const [imageDetails, setImageDetails] = useState({
@@ -37,14 +40,14 @@ function Gallery() {
         return response.json();
       })
       .then((data) => {
-        // if (defaultPage === 1) {
-        //   setImages(data.results);
-        //   setPage(page + 1);
-        // } else {
-        //   setImages([...images, ...data.results]);
-        //   setPage(page + 1);
-        // }
-             setImages([...images, ...data.results]);
+        if (defaultPage === 1) {
+          setImages(data.results);
+          setPage(page + 1);
+        } else {
+          setImages([...images, ...data.results]);
+          setPage(page + 1);
+        }
+      //       setImages([...images, ...data.results]);
       //    setPage(page + 1);
         console.log(data);
         toast.dismiss(toastId);
@@ -55,19 +58,24 @@ function Gallery() {
         toast.error("Network error");
         console.log(error);
       });
-      setPage(page + 1);
 
   };
+  
+
+  console.log(typeof(images.length));
 
   const handleImageClick = (src, alt) => {
     setImageDetails({ src, alt });
     setOpen(true);
     console.log(imageDetails);
   };
-  //  getImages()
-  useEffect(() => {
-    getImages();
-  }, []);
+
+
+  const fetchData =()=>{
+    console.log('fetch data called',images.length);
+    setPage(page+1)
+    getImages()
+  }
   return (
     <>
       <div className="flex flex-col justify-items-center items-center border-2 border-[#1976d2] m-auto p-2 w-full md:w-[60%] h-screen">
@@ -110,13 +118,18 @@ function Gallery() {
 
         <div className="p-2 overflow-auto">
           <InfiniteScroll
-            dataLength={images.length}
-            next={getImages}
-            hasMore={hasMore}
+            dataLength={page*10}
+            next={()=>{
+              fetchData()
+              getImages()
+            }}
+            hasMore={true}
             loader={<h4>Loading...</h4>}
-            className="grid md:grid-cols-3 sm:grid-cols-2"
+          //  scrollableTarget="scrollableDiv"
+
+            className="grid md:grid-cols-3   xl:grid-cols-5 sm:grid-cols-2 "
           >
-              {images.map((item, i) => {
+              {images && images.map((item, i) => {
                 return (
                   <ImageListItem
                     key={i}
