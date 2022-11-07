@@ -1,1 +1,1 @@
-console.log(000)
+console.log(00000)
