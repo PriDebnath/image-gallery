@@ -21,6 +21,7 @@ export default function FullImageDialog(props) {
     setOpen(false);
   };
 
+  
   return (
     <div>
       <Dialog

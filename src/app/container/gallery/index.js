@@ -5,18 +5,13 @@ import { Input } from "@mui/material";
 import { Button } from "@mui/material";
 import { ImageList } from "@mui/material";
 import { ImageListItem } from "@mui/material";
-
 import SearchIcon from "@mui/icons-material/Search";
 import FavoriteIcon from "@mui/icons-material/Favorite";
-
 import IconButton from "@mui/material/IconButton";
-
 import toast from "react-hot-toast";
 import ImageListItemBar from "@mui/material/ImageListItemBar";
-
 import FullImageDialog from "./component/FullImageDialog";
 import NotFound from "./component/NotFound";
-
 import InfiniteScroll from "react-infinite-scroll-component";
 
 function Gallery() {
@@ -27,13 +22,10 @@ function Gallery() {
     alt: "",
     name: "",
   });
-  const [isFavoriteClicked, setIsFavoriteClicked] = useState(false);
   const [page, setPage] = useState(1);
-  const [hasMore, setHasMore] = useState(true);
   const [open, setOpen] = useState(false);
 
   const getImages = (defaultPage) => {
-
     const API_URL = `https://api.unsplash.com/search/photos?page=${
       defaultPage ? defaultPage : page
     }&per_page=12&query=${searchValue}&client_id=${KEYS.AccessKey}`;
@@ -42,7 +34,6 @@ function Gallery() {
 
     fetch(API_URL)
       .then((response) => {
-        //  toastId = toast.loading("Getting images");
         return response.json();
       })
       .then((data) => {
@@ -53,14 +44,10 @@ function Gallery() {
           setImages([...images, ...data.results]);
           setPage(page + 1);
         }
-        //    setImages([...images, ...data.results]);
-        //    setPage(page + 1);
         console.log(data);
         toast.dismiss(toastId);
-        //  toast.success("Succeed");
       })
       .catch((error) => {
-        // toast.error("Network error");
         console.log(error);
       });
   };
@@ -81,6 +68,7 @@ function Gallery() {
           onSubmit={(e) => {
             e.preventDefault();
             getImages(1);
+            window.scrollTo({ top: 0, left: 0, behavior: "smooth" });
           }}
         >
           <Input
@@ -115,17 +103,15 @@ function Gallery() {
       </div>
       <div className="p-2 ">
         <InfiniteScroll
-          // dataLength={page * 10}
           dataLength={images.length}
           next={() => {
             getImages();
           }}
           hasMore={true}
-          loader={<h4>Loading...</h4>}
-          //  scrollableTarget="scrollableDiv"
+          loader={<h6>Loading...</h6>}
         >
           {" "}
-          <div className="grid md:grid-cols-3   xl:grid-cols-5 sm:grid-cols-2 ">
+          <div className="grid  sm:grid-cols-2 md:grid-cols-4  xl:grid-cols-6 ">
             {images &&
               images.map((item, i) => {
                 return (
@@ -142,7 +128,6 @@ function Gallery() {
                         );
                       }}
                       src={`${item.urls.small}`}
-                      // srcSet={`${item.urls.full}?w=164&h=164&fit=crop&auto=format&dpr=2 2x`}
                       alt={item.alt_description}
                       loading="lazy"
                     />
