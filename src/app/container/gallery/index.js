@@ -7,15 +7,20 @@ import { ImageList } from "@mui/material";
 import { ImageListItem } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import FavoriteIcon from "@mui/icons-material/Favorite";
+import DownloadRoundedIcon from '@mui/icons-material/DownloadRounded';
 import IconButton from "@mui/material/IconButton";
 import toast from "react-hot-toast";
 import ImageListItemBar from "@mui/material/ImageListItemBar";
 import FullImageDialog from "./component/FullImageDialog";
 import NotFound from "./component/NotFound";
 import InfiniteScroll from "react-infinite-scroll-component";
+import Popover from '@mui/material/Popover';
+
 
 function Gallery() {
-  const [searchValue, setSearchValue] = useState("office");
+
+
+  const [searchValue, setSearchValue] = useState("car");
   const [images, setImages] = useState([]);
   const [imageDetails, setImageDetails] = useState({
     src: "",
@@ -24,13 +29,16 @@ function Gallery() {
   });
   const [page, setPage] = useState(1);
   const [open, setOpen] = useState(false);
+  const [anchorEl, setAnchorEl] = useState(null);
+  const openPopOver = Boolean(anchorEl);
+  const [likesCount, setLikesCount] = useState("")
 
+  /** getting all images */
   const getImages = (defaultPage) => {
-    const API_URL = `https://api.unsplash.com/search/photos?page=${
-      defaultPage ? defaultPage : page
-    }&per_page=12&query=${searchValue}&client_id=${KEYS.AccessKey}`;
 
-    let toastId;
+    const API_URL = `https://api.unsplash.com/search/photos?page=${defaultPage ? defaultPage : page
+      }&per_page=12&query=${searchValue}&client_id=${KEYS.AccessKey}`;
+
 
     fetch(API_URL)
       .then((response) => {
@@ -44,8 +52,6 @@ function Gallery() {
           setImages([...images, ...data.results]);
           setPage(page + 1);
         }
-        console.log(data);
-        toast.dismiss(toastId);
       })
       .catch((error) => {
         console.log(error);
@@ -56,6 +62,67 @@ function Gallery() {
     setImageDetails({ src, alt, name });
     setOpen(true);
   };
+
+
+  const handleFavoriteIconClick = (event, clickeedItem) => {
+
+    setAnchorEl(event.currentTarget);
+    setLikesCount(clickeedItem.likes)
+
+    setImages((preValues) => {
+      let newImages = []
+      for (let i = 0; i < preValues.length; i++) {
+        if (preValues[i].id === clickeedItem.id) {
+          newImages.push({ ...preValues[i], liked_by_user: !preValues[i].liked_by_user })
+        } else {
+          newImages.push(preValues[i])
+        }
+      }
+      return newImages
+    })
+
+    setTimeout(() => {
+      handlePopOverClose()
+    }, 700);
+
+  }
+
+
+  const handlePopOverClose = () => {
+    setAnchorEl(null);
+  };
+
+
+  const downloadImage = (clickeedItem) => {
+
+    let url = `${clickeedItem.links.download_location}&client_id=${KEYS.AccessKey}`
+
+    fetch(url).then((res) => {
+      return res.json()
+    }).then((urlObjet) => {
+      console.log({ urlObjet });
+
+      fetch(urlObjet.url).then((res) => {
+        return res.blob()
+      }).then((blobData) => {
+
+        const imageUrl = window.URL.createObjectURL(blobData)
+
+        console.log({ imageUrl });
+
+        let a = document.createElement("a")
+        a.href = imageUrl
+        a.setAttribute("download", `${clickeedItem.alt_description}.png`)
+        a.click()
+
+      })
+
+    })
+
+  }
+
+
+  /** getting images on mount */
   useEffect(() => {
     getImages();
   }, []);
@@ -107,12 +174,12 @@ function Gallery() {
           next={() => {
             getImages();
           }}
-          hasMore={true}
+          hasMore={images.length > 0 ? true : false}
           loader={<h6>Loading...</h6>}
         >
           {" "}
           <div className="grid  sm:grid-cols-2 md:grid-cols-4  xl:grid-cols-6 ">
-            {images &&
+            {images.length > 1 ? (
               images.map((item, i) => {
                 return (
                   <ImageListItem
@@ -131,28 +198,70 @@ function Gallery() {
                       alt={item.alt_description}
                       loading="lazy"
                     />
+                    {/* image footer bar */}
                     <ImageListItemBar
                       position="bottom"
                       title={item.user.name}
                       actionIcon={
-                        <IconButton
-                          sx={{ color: "white" }}
-                          aria-label={`star ${item.title}`}
-                        >
-                          <span className="text-sm">
-                            {item.likes}
-                            <FavoriteIcon />
-                          </span>
-                        </IconButton>
+                        <>
+                          <IconButton
+                            sx={{ color: "white" }}
+                            onClick={e => handleFavoriteIconClick(e, item)}
+                          >
+                            <FavoriteIcon sx={{ color: item.liked_by_user ? "red" : "white" }} />
+                          </IconButton>
+                          <IconButton
+                            sx={{ color: "white" }}
+                            onClick={e => downloadImage(item)}
+                          >
+                            <DownloadRoundedIcon />
+                          </IconButton>
+                        </>
                       }
                     />
+
                   </ImageListItem>
                 );
-              })}
-            {!images && <NotFound />}
+              })) : <NotFound />}
+
           </div>
         </InfiniteScroll>
       </div>
+      {/* Favourite icon clicked popup */}
+      <Popover
+        // id={id}
+        open={openPopOver}
+        anchorEl={anchorEl}
+        onClose={handlePopOverClose}
+        anchorOrigin={{
+          vertical: 'top',
+          horizontal: 'center',
+        }}
+        transformOrigin={{
+          vertical: 'bottom',
+          horizontal: 'center',
+        }}
+        sx={{
+          boxShadow: "none",
+          background: "transparent",
+          color: "red",
+          "& .MuiPaper-root": {
+            background: "transparent !important",
+            boxShadow: "none !important",
+
+          }
+        }}
+      >
+        <span style={{
+          boxShadow: "none",
+          background: "transparent",
+          color: "red",
+          fontWeight: "bolder"
+        }}>  {likesCount} <FavoriteIcon sx={{
+          boxShadow: "none",
+          background: "transparent",
+          color: "red",
+        }} /></span></Popover>
 
       <FullImageDialog
         open={open}

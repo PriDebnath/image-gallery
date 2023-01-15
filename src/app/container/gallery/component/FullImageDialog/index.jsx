@@ -15,7 +15,6 @@ const Transition = React.forwardRef(function Transition(props, ref) {
 
 export default function FullImageDialog(props) {
   const { open, setOpen, src, alt, user } = props;
-  console.log(alt);
 
   const handleClose = () => {
     setOpen(false);
