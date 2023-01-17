@@ -15,6 +15,7 @@ import FullImageDialog from "./component/FullImageDialog";
 import NotFound from "./component/NotFound";
 import InfiniteScroll from "react-infinite-scroll-component";
 import Popover from '@mui/material/Popover';
+import { useWindowSize } from "../../hooks/useWindowSize";
 
 
 function Gallery() {
@@ -32,6 +33,20 @@ function Gallery() {
   const [anchorEl, setAnchorEl] = useState(null);
   const openPopOver = Boolean(anchorEl);
   const [likesCount, setLikesCount] = useState("")
+  const [windowWidth, setWindowWidth] = useState(window.innerWidth)
+
+
+  useEffect(() => {
+    const handleResize = () => {
+      setWindowWidth(window.innerWidth)
+    }
+
+    window.addEventListener("resize", handleResize)
+
+    return () => window.removeEventListener("resize", handleResize)
+  }, [windowWidth])
+  
+
 
   /** getting all images */
   const getImages = (defaultPage) => {
@@ -178,7 +193,10 @@ function Gallery() {
           loader={<h6>Loading...</h6>}
         >
           {" "}
-          <div className="grid  sm:grid-cols-2 md:grid-cols-4  xl:grid-cols-6 ">
+          {/* <div className="grid  sm:grid-cols-2 md:grid-cols-4  xl:grid-cols-6 "> */}
+          <ImageList variant="masonry"
+            cols={Math.round(windowWidth/250)}
+            gap={6}>
             {images.length > 1 ? (
               images.map((item, i) => {
                 return (
@@ -195,10 +213,13 @@ function Gallery() {
                         );
                       }}
                       src={`${item.urls.small}`}
+                      srcSet={`${item.urls.small}?w=248&fit=crop&auto=format&dpr=2 2x`}
                       alt={item.alt_description}
                       loading="lazy"
                     />
+
                     {/* image footer bar */}
+                    
                     <ImageListItemBar
                       position="bottom"
                       title={item.user.name}
@@ -224,8 +245,10 @@ function Gallery() {
                 );
               })) : <NotFound />}
 
-          </div>
+            {/* </div> */}
+          </ImageList>
         </InfiniteScroll>
+
       </div>
       {/* Favourite icon clicked popup */}
       <Popover
