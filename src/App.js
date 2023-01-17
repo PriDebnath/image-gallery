@@ -5,7 +5,6 @@ import {Toaster} from "react-hot-toast";
 
 
 const App = () => {
-  console.log(process.env.REACT_APP_ACCESS_KEY);
   return (
   <>
     <BrowserRouter>
