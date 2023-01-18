@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import KEYS from "../../../keys";
 import { TextField } from "@mui/material";
 import { Input } from "@mui/material";
 import { Button } from "@mui/material";
@@ -52,8 +51,7 @@ function Gallery() {
   const getImages = (defaultPage) => {
 
     const API_URL = `https://api.unsplash.com/search/photos?page=${defaultPage ? defaultPage : page
-      }&per_page=12&query=${searchValue}&client_id=${KEYS.AccessKey}`;
-
+      }&per_page=20&query=${searchValue}&client_id=${process.env.REACT_APP_ACCESS_KEY}`;
 
     fetch(API_URL)
       .then((response) => {
@@ -72,6 +70,7 @@ function Gallery() {
         console.log(error);
       });
   };
+
 
   const handleImageClick = (src, alt, name) => {
     setImageDetails({ src, alt, name });
@@ -110,28 +109,22 @@ function Gallery() {
 
   const downloadImage = (clickeedItem) => {
 
-    let url = `${clickeedItem.links.download_location}&client_id=${KEYS.AccessKey}`
+    let url = `${clickeedItem.links.download_location}&client_id=${process.env.REACT_APP_ACCESS_KEY}`
 
     fetch(url).then((res) => {
       return res.json()
     }).then((urlObjet) => {
-      console.log({ urlObjet });
-
       fetch(urlObjet.url).then((res) => {
         return res.blob()
       }).then((blobData) => {
 
         const imageUrl = window.URL.createObjectURL(blobData)
-
-        console.log({ imageUrl });
-
         let a = document.createElement("a")
         a.href = imageUrl
         a.setAttribute("download", `${clickeedItem.alt_description}.png`)
         a.click()
 
-      })
-
+      }).catch((error)=>console.log(error))
     })
 
   }
@@ -190,12 +183,12 @@ function Gallery() {
             getImages();
           }}
           hasMore={images.length > 0 ? true : false}
-          loader={<h6>Loading...</h6>}
+          loader={<h6 style={{textAlign:"center"}}>Loading...</h6>}
         >
           {" "}
           {/* <div className="grid  sm:grid-cols-2 md:grid-cols-4  xl:grid-cols-6 "> */}
           <ImageList variant="masonry"
-            cols={Math.round(windowWidth/250)}
+            cols={Math.floor(windowWidth/250)}
             gap={6}>
             {images.length > 1 ? (
               images.map((item, i) => {
