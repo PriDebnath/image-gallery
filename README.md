@@ -1,10 +1,8 @@
-<img src="public/gallery.jpg" />
-
 ## 🔴 Demo
 
-### 🖼️ Screenshot
+### 🔴 🖼️ Screenshot
 <a href="https://gallerybypri.netlify.app/"><img src="public/gallery.jpg" />
 </a>
     
-### ↗️ Link
+### 🔴 ↗️ Link
 https://gallerybypri.netlify.app/
